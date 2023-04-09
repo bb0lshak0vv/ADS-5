@@ -2,7 +2,6 @@
 #include <string>
 #include <map>
 #include "tstack.h"
-
 int Prioritetfunc(char op) {
   std::pair<char, int> prioritet[6];
   switch (op) {
@@ -43,14 +42,11 @@ std::string mirOne(const std::string& a) {
   }
   return d;
 }
-
 std::string infx2pstfx(std::string inf) {
   std::string s;
   TStack<char, 100> stack1;
-  
   for (auto& op : inf) {
     int priority = Prioritetfunc(op);
-    
     if (priority == -1) {
       s += op;
     } else {
@@ -75,7 +71,6 @@ std::string infx2pstfx(std::string inf) {
       }
     }
   }
-  
   while (!stack1.isEmpty()) {
     s += stack1.get();
     stack1.pop();
@@ -83,9 +78,18 @@ std::string infx2pstfx(std::string inf) {
   s = mirOne(s);
   return s;
 }
-
+int count(const int& a, const int& b, const int& operation) {
+  switch (operation) {
+    default:
+      break;
+    case'*': return a * b;
+    case'/': return a / b;
+    case'+': return a + b;
+    case'-': return a - b;
+  }
+  return 0;
+}
 int eval(std::string pref) {
-  int eval(std::string pref) {
   TStack<int, 100> stack1;
   std::string num = "";
   for (size_t i = 0; i < pref.size(); i++) {
