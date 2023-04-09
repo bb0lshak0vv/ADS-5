@@ -1,117 +1,144 @@
 // Copyright 2021 NNTU-CS
 #include <string>
+#include <iostream>
 #include <map>
 #include "tstack.h"
 
-int Prioritetfunc(char op) {
-  std::pair<char, int> prioritet[6];
-  switch (op) {
-    case')':
-      prioritet[1].first = ')';
-      prioritet[1].second = 1;
-    case'(':
-      prioritet[0].first = '(';
-      prioritet[0].second = 0;
-    case'+':
-      prioritet[2].first = '+';
-      prioritet[2].second = 2;
-    case'-':
-      prioritet[3].first = '-';
-      prioritet[3].second = 2;
-    case'*':
-      prioritet[4].first = '*';
-      prioritet[4].second = 3;
-    case'/':
-      prioritet[5].first = '/';
-      prioritet[5].second = 3;
-  }
-  int priority = -1;
-  for (int j = 0; j < 6; ++j) {
-    if (op == prioritet[j].first) {
-      priority = prioritet[j].second;
-      break;
-    }
-  }
-  return priority;
-}
-std::string mirOne(const std::string& a) {
-  if (a.length() <= 2) return a;
-  int b = 2 - a.length() % 2;
-  std::string d(a, 0, b);
-  for (auto it = a.begin() + b; it != a.end();) {
-    d += ' '; d += *it++;;
-  }
-  return d;
-}
-std::string infx2pstfx(std::string inf) {
-  std::string s;
-  TStack<char, 100> stack1;
-  for (auto& op : inf) {
-    int priority = Prioritetfunc(op);
-    if (priority == -1) {
-      s += op;
-    } else {
-      if (stack1.get() < priority || priority == 0 || stack1.isEmpty()) {
-        stack1.push(op);
-      } else if (op == ')') {
-        char sm = stack1.get();
-        while (Prioritetfunc(sm) >= priority) {
-          s += sm;
-          stack1.pop();
-          sm = stack1.get();
-        }
-        stack1.pop();
-      } else {
-        char sm = stack1.get();
-        while (Prioritetfunc(sm) >= priority) {
-          s += sm;
-          stack1.pop();
-          sm = stack1.get();
-        }
-        stack1.push(op);
+int Priority(char c);
+int Execute(char oper, int first, int second);
+std::string infx2pstfx(std::string inpt);
+int eval(std::string post);
+const int size = 100;
+TStack <unsigned char, size> ts;
+TStack <int, size> val;
+std::string Func1(unsigned char c, std::string output);
+std::string infx2pstfx(std::string inpt) {
+  std::size_t len = inpt.length();
+  std::string output, buf;
+  unsigned char c , tp = '\0';
+  for (int i = 0; i < len; i++) {
+    c = inpt[i];
+    try {
+      switch (c) {
+        case '(':
+          ts.push(c);
+          break;
+        case ')':
+          tp = '\0';
+          while (tp != '(') {
+            tp = ts.pop();
+            if (tp != '(') {
+              output += tp;
+              output += " ";
+              std::cout << tp << " ";
+            } else {
+              break;
+            }
+          }
+          break;
+        case '+':
+          buf = "";
+          output += Func1(c, buf);
+          break;
+        case '-':
+          buf = "";
+          output += Func1(c, buf);
+          break;
+        case '*':
+          buf = "";
+          output += Func1(c, buf);
+          break;
+        case '/':
+          buf = "";
+          output += Func1(c, buf);
+          break;
+        default:
+          if (c >= '0' && c <= '9') {
+            output += c;
+            output += " ";
+            std::cout << c << " ";
+          }
       }
     }
+    catch (std::string e) {
+      std::cout << e << std::endl;
+    }
   }
-  while (!stack1.isEmpty()) {
-    s += stack1.get();
-    stack1.pop();
+  tp = '\0';
+  while (!ts.isEmpty()) {
+    tp = ts.pop();
+    if (tp != '(') {
+      output += tp;
+      if (!ts.isEmpty())
+        output += " ";
+      std::cout << tp << " ";
+    }
   }
-  s = mirOne(s);
-  return s;
+  return output;
 }
-int count(const int& a, const int& b, const int& operation) {
-  switch (operation) {
-    default:
+std::string Func1(unsigned char c, std::string outp) {
+  char temp;
+  if (!ts.isEmpty()) {
+    temp = ts.get();
+    while (!ts.isEmpty() && (Priority(temp) >= Priority(c))) {
+      outp += ts.pop();
+      outp += " ";
+      std::cout << outp;
+    }
+  }
+  ts.push(c);
+  return outp;
+}
+int Priority(char c) {
+  int pr = 0;
+  switch (c) {
+    case '-':
+      pr = 1;
       break;
-    case'*': return a * b;
-    case'/': return a / b;
-    case'+': return a + b;
-    case'-': return a - b;
+    case '+':
+      pr = 1;
+      break;
+    case '*':
+      pr = 2;
+      break;
+    case '/':
+      pr = 2;
+      break;
+    case '(':
+      pr = 0;
+      break;
+  }
+  return pr;
+}
+int eval(std::string post) {
+  std::size_t len = post.length();
+  int count = 0, z;
+  char c;
+  for (int i = 0; i < len; i++) {
+    c = post[i];
+    if (c == ' ') continue;
+    if (c >= '0' && c <= '9') {
+      z = atoi(&c);
+      val.push(z);
+    } else {
+      int second = val.pop();
+      int first = val.pop();
+      z = Execute(c, first, second);
+      val.push(z);
+    }
+  }
+  return val.pop();
+}
+int Execute(char oper, int first, int second) {
+  switch (oper) {
+    case'+':
+      return first + second;
+    case'-':
+      return first - second;
+    case'*':
+      return first * second;
+    case'/':
+      return first / second;
   }
   return 0;
-}
-int eval(std::string pref) {
-  TStack<int, 100> stack1;
-  std::string num = "";
-  for (size_t i = 0; i < pref.size(); i++) {
-    if (Prioritetfunc(pref[i]) == -1) {
-      if (pref[i] == ' ') {
-        continue;
-      } else if (isdigit(pref[i + 1])) {
-        num += pref[i];
-        continue;
-      } else {
-        num += pref[i];
-        stack1.push(atoi(num.c_str()));
-        num = "";
-      }
-    } else {
-      int n = stack1.get();
-      stack1.pop();
-      int k = stack1.get();
-      stack1.pop();
-      stack1.push(count(k, n, pref[i]));
-    }
-  }
-  return stack1.get();
 }
