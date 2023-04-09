@@ -114,4 +114,4 @@ int eval(std::string pref) {
     }
   }
   return stack1.get();
-}    
+}
