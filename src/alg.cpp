@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include "tstack.h"
+
 int Prioritetfunc(char op) {
   std::pair<char, int> prioritet[6];
   switch (op) {
@@ -113,4 +114,4 @@ int eval(std::string pref) {
     }
   }
   return stack1.get();
-}
+}    
