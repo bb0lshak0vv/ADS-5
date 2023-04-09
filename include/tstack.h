@@ -2,7 +2,6 @@
 #ifndef INCLUDE_TSTACK_H_
 #define INCLUDE_TSTACK_H_
 #include <string>
-
 template<typename T, int size>
 class TStack {
  private:
@@ -40,5 +39,4 @@ class TStack {
       return arr[top];
     }
 };
-
 #endif  // INCLUDE_TSTACK_H_
