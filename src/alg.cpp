@@ -45,11 +45,68 @@ std::string mirOne(const std::string& a) {
 }
 
 std::string infx2pstfx(std::string inf) {
-  // добавьте код
-  return std::string("");
+  std::string s;
+  TStack<char, 100> stack1;
+  
+  for (auto& op : inf) {
+    int priority = Prioritetfunc(op);
+    
+    if (priority == -1) {
+      s += op;
+    } else {
+      if (stack1.get() < priority || priority == 0 || stack1.isEmpty()) {
+        stack1.push(op);
+      } else if (op == ')') {
+        char sm = stack1.get();
+        while (Prioritetfunc(sm) >= priority) {
+          s += sm;
+          stack1.pop();
+          sm = stack1.get();
+        }
+        stack1.pop();
+      } else {
+        char sm = stack1.get();
+        while (Prioritetfunc(sm) >= priority) {
+          s += sm;
+          stack1.pop();
+          sm = stack1.get();
+        }
+        stack1.push(op);
+      }
+    }
+  }
+  
+  while (!stack1.isEmpty()) {
+    s += stack1.get();
+    stack1.pop();
+  }
+  s = mirOne(s);
+  return s;
 }
 
 int eval(std::string pref) {
-  // добавьте код
-  return 0;
+  int eval(std::string pref) {
+  TStack<int, 100> stack1;
+  std::string num = "";
+  for (size_t i = 0; i < pref.size(); i++) {
+    if (Prioritetfunc(pref[i]) == -1) {
+      if (pref[i] == ' ') {
+        continue;
+      } else if (isdigit(pref[i + 1])) {
+        num += pref[i];
+        continue;
+      } else {
+        num += pref[i];
+        stack1.push(atoi(num.c_str()));
+        num = "";
+      }
+    } else {
+      int n = stack1.get();
+      stack1.pop();
+      int k = stack1.get();
+      stack1.pop();
+      stack1.push(count(k, n, pref[i]));
+    }
+  }
+  return stack1.get();
 }
